@@ -11,6 +11,8 @@ function DEM = readexample(example,varargin)
 %     readexample reads DEMs from the TopoToolbox DEM repository.
 %     Currently available examples are
 %
+%     'kunashiri'
+%     'taalvolcano'
 %     'taiwan'
 %     'tibet'
 %
@@ -28,7 +30,7 @@ function DEM = readexample(example,varargin)
 % See also: GRIDobj, websave, readopentopo
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. January, 2019
+% Date: 23. March, 2020
 
 
 
@@ -49,6 +51,12 @@ switch example
         istif = true;
     case 'tibet'
         url = 'https://github.com/wschwanghart/DEMs/raw/master/tibet.tif';
+        istif = true;
+    case 'taalvolcano'
+        url = 'https://github.com/wschwanghart/DEMs/raw/master/taalvolcano.tif';
+        istif = true;
+    case 'kunashiri'
+        url = 'https://github.com/wschwanghart/DEMs/raw/master/kunashiri.tif';
         istif = true;
     otherwise 
         error('There is no such example file.')
@@ -71,6 +79,7 @@ end
 % Read grid or mat file
 if istif
     DEM = GRIDobj(f);
+    DEM.name = example;
 else
     DEM = load(f); 
 end

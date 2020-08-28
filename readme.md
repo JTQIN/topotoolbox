@@ -2,6 +2,8 @@
 
 <img src="https://github.com/wschwanghart/topotoolbox/blob/master/topotoolbox.jpg" align="center" height="100">
 
+[![View TopoToolbox on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://de.mathworks.com/matlabcentral/fileexchange/50124-topotoolbox)
+
 [TopoToolbox](http://topotoolbox.wordpress.com) provides a set of Matlab functions that support the analysis
 of relief and flow pathways in digital elevation models. The major 
 aim of TopoToolbox is to offer helpful analytical GIS utilities in a 
@@ -19,7 +21,7 @@ scherler[at]gfz-potsdam.de
 ## Requirements
 
 TopoToolbox is plat-form independent and requires
-Matlab 2014b or higher and the Image Processing Toolbox. The Mapping
+Matlab 2016b or higher and the Image Processing Toolbox. The Mapping
 Toolbox is not mandatory, but good to have to facilitate easy data
 exchange with GIS software. Some functions support parallelisation using the 
 Parallel Toolbox. Few functions require the Optimization or Statistics
@@ -44,29 +46,44 @@ In addition, various models and algorithms used in TopoToolbox have been publish
 
 ### DEM preprocessing and carving
 
-- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G. (2013): Flow network derivation from a high 
+- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G., 2013: Flow network derivation from a high 
 resolution DEM in a low relief, agrarian landscape. Earth Surface Processes and Landforms, 38, 
 1576-1586. DOI: [10.1002/esp.3452](http://dx.doi.org/10.1002/esp.3452)
 
 - Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: uncertainty assessment and smoothing 
 using quantile regression techniques. Earth Surface Dynamics, 5, 821-839. DOI: [10.5194/esurf-5-821-2017](https://doi.org/10.5194/esurf-5-821-2017)
 
-### TopoToolbox Landscape Evolution Modelling (TTLEM)
+### TopoToolbox Landscape Evolution Modelling (TTLEM) and HyLands
 
 - Campforts, B., Schwanghart, W., Govers, G. (2017): Accurate simulation of transient 
 landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
 Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
 
+- HyLands: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape 
+evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. 
+Discussion paper in Geoscientific Model Development.  
+
 ### Excess topography
 
-- Blöthe, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie low: Excess topography in the 
+- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the Himalaya-Karakorum ranges. Geology, 43, 523-526. [DOI: 10.1130/G36527.1](https://doi.org/10.1130/G36527.1)
 
 ### Knickpointfinder
 
-- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., 
-Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. 
-Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
+- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
 (The description here is very terse, yet)
+
+### Divide functions
+
+- Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 1: Identification and ordering in digital elevation models. 
+Earth Surface Dynamics, 8, 245–259. [DOI: 10.5194/esurf-8-245-2020](http://dx.doi.org/10.5194/esurf-8-245-2020)
+
+- Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 2: Response to perturbations. 
+Earth Surface Dynamics, 8, 261-274. [DOI: 10.5194/esurf-8-261-2020](http://dx.doi.org/10.5194/esurf-8-261-2020)
+
+### Point patterns on stream networks
+
+- Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A systematic approach and software for the analysis 
+of point patterns on river networks. EarthArXiv preprint. [DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r)
 
 ## Getting started
 
@@ -92,9 +109,22 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 
 ### pre 2.4
 
+- HyLands 1.0 added: see paper: Campforts, B. et al. (2020): HyLands 1.0: a Hybrid Landscape evolution 
+  model to simulate the impact of landslides and landslide-derived sediment on landscape evolution  
+  Geoscientific Model Development Discussions. [DOI:10.5194/gmd-2020-74](https://doi.org/10.5194/gmd-2020-74)
+- new class: DIVIDEobj [Paper 1 DOI: 10.5194/esurf-8-245-2020](https://doi.org/10.5194/esurf-8-245-2020)
+  [Paper 2 DOI: 10.5194/esurf-8-261-2020](https://doi.org/10.5194/esurf-8-261-2020)
+- new class: PPS [Preprint of manuscript in review DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r) 
+- modification: update to ttscm to include cyclic colormaps; 
+  see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
 - new function: STREAMobj/STREAMobj2shape
+- new function: STREAMobj/isequal
+- new function: STREAMobj/STREAMobj2kml
+- topoapp was removed from this version 
+- updates to utilities: setextent and getextent 
+- new function: padextent
 
 
 ### 2.3

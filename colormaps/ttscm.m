@@ -1,11 +1,12 @@
-function cmap = ttscm(name,n)
+function cmap = ttscm(name,n,percrange)
 
-%TTSCM scientific colormaps
+%TTSCM Scientific colormaps by Fabio Crameri
 %
 % Syntax
 %     
 %     cmap = ttscm(name)
 %     cmap = ttscm(name,n)
+%     cmap = ttscm(name,percrange)
 %     ttscm
 %     allowedcmaps = ttscm
 %
@@ -17,6 +18,13 @@ function cmap = ttscm(name,n)
 %     TTSCM(name) returns a 255*3 matrix with rgb values.
 %
 %     TTSCM(name,n) returns a n*3 matrix with rgb values.
+%
+%     TTSCM(name,n,percrange) enables to define a percentile range of the
+%     total colormap to be used. A scalar > 50 thereby defines the central
+%     percentile range, whereas a scalar < 50 defines the upper and lower
+%     limits of the percentile range. percrange can be a two element vector
+%     with the upper and lower percentile bounds of the colormap range to
+%     be used.
 %     
 %     TTSCM without input and output arguments shows a figure with
 %     available colormaps.
@@ -29,6 +37,8 @@ function cmap = ttscm(name,n)
 %     name           name of colormap (run ttscm without in- and output
 %                    arguments for list)
 %     n              number of colors in colormap    
+%     percrange      percentile range of the colormap to be used (see
+%                    description above)
 %     
 % Output arguments
 %
@@ -65,10 +75,10 @@ function cmap = ttscm(name,n)
 %      doi:10.5194/gmd-11-2541-2018
 %
 %
-% See also: IMAGESCHS, ttcmap
+% See also: GRIDobj/IMAGESCHS, ttcmap
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. December, 2019
+% Date: 22. June, 2020
 
 allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
                 'buda' ...
@@ -101,6 +111,31 @@ else
 end
 
 cmap = loadcmap(cmaptype);
+
+if nargin == 3
+    if isscalar(percrange)
+        if percrange > 100 || percrange < 0
+            error('TopoToolbox:ttscm','Wrong percentile range')
+        end
+        
+        if percrange >= 50
+            percrange = [50-percrange/2 50+percrange/2];
+        else
+            percrange = [percrange 100-percrange];
+        end
+        
+    elseif numel(percrange) == 2
+        
+        percrange = sort(percrange,'ascend');
+        if any(percrange > 100) || any(percrange < 0)
+            error('TopoToolbox:ttscm','Wrong percentile range')
+        end
+        
+    end
+    ncolors = size(cmap,1);
+    cmap = cmap((round(percrange(1)/100*ncolors)+1):round(percrange(2)/100*ncolors),:);
+end
+
 ncolors = size(cmap,1);
 if n ~= ncolors
 	cmap    = interp1((1:ncolors)',cmap,linspace(1,ncolors,n));
