@@ -4,6 +4,8 @@
 
 [![View TopoToolbox on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://de.mathworks.com/matlabcentral/fileexchange/50124-topotoolbox)
 
+⚠️ **Development of TopoToolbox continues in [version 3](https://github.com/TopoToolbox/topotoolbox3). This version will no longer be developed further, as our focus and resources are now dedicated to advancing version 3. We encourage all users to transition to version 3 to benefit from the latest features, improvements, and ongoing support. Note that version 3 will need MATLAB R2023b or newer.**
+
 [TopoToolbox](http://topotoolbox.wordpress.com) provides a set of Matlab functions that support the analysis
 of relief and flow pathways in digital elevation models. The major 
 aim of TopoToolbox is to offer helpful analytical GIS utilities in a 
@@ -59,18 +61,20 @@ using quantile regression techniques. Earth Surface Dynamics, 5, 821-839. DOI: [
 landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
 Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
 
-- HyLands: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape 
+- HyLands: Campforts B., Shobe M.C., et al. (2020): HyLands 1.0: a Hybrid Landscape 
 evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. 
-Discussion paper in Geoscientific Model Development.  
+Geosci. Model Dev., 13, 3863–3886. DOI: [10.5194/gmd-13-3863-2020](http://dx.doi.org/10.5194/gmd-13-3863-2020)
 
 ### Excess topography
 
-- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the Himalaya-Karakorum ranges. Geology, 43, 523-526. [DOI: 10.1130/G36527.1](https://doi.org/10.1130/G36527.1)
+- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the Himalaya-Karakorum ranges. 
+  Geology, 43, 523-526. [DOI: 10.1130/G36527.1](https://doi.org/10.1130/G36527.1)
 
 ### Knickpointfinder
 
-- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
-(The description here is very terse, yet)
+- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., Merchel, S., 
+  Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. Earth Surface Processes 
+  and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) (The description here is very terse, yet)
 
 ### Divide functions
 
@@ -83,7 +87,7 @@ Earth Surface Dynamics, 8, 261-274. [DOI: 10.5194/esurf-8-261-2020](http://dx.do
 ### Point patterns on stream networks
 
 - Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A systematic approach and software for the analysis 
-of point patterns on river networks. EarthArXiv preprint. [DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r)
+of point patterns on river networks. Earth Surface Processes and Landforms, accepted. [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
 
 ## Getting started
 
@@ -95,6 +99,10 @@ path of Matlab. Enter following code into the command line:
 To remove .git-folders from the path, run
 
         rmpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2\.git'));
+		
+To make these paths permanent, use the command
+
+		savepath
 
 Type `doc` in the command line to open the main documentation page. You'll 
 find the TopoToolbox documentation in the section Supplemental Software.  
@@ -107,24 +115,63 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 ***
 ## Version History
 
-### pre 2.4
+### pre 2.5
+
+- new function: GRIDobj/randomsample - Create a spatially uniform sample based on a GRIDobj
+- new function: tthelp - Search for keywords on the TopoToolbox blog
+- new function: meltonruggedness (thanks for pointing out the bug, Kerry Leith!)
+- new function: PPS/cdftest
+- new function: GRIDobj/evansslope - calculate surface gradient using Evans method
+- new function: GRIDobj/GRIDobj2rgb
+- new function: getgriddedline(see utilities)
+- new function: table2STREAMobj (see IOtools)
+- new function: STREAMobj/bifurcationratio
+- new function: GRIDobj/createrectmask
+- new function: STREAMobj/plotcategorical
+
+### 2.4
 
 - HyLands 1.0 added: see paper: Campforts, B. et al. (2020): HyLands 1.0: a Hybrid Landscape evolution 
   model to simulate the impact of landslides and landslide-derived sediment on landscape evolution  
-  Geoscientific Model Development Discussions. [DOI:10.5194/gmd-2020-74](https://doi.org/10.5194/gmd-2020-74)
+  Geoscientific Model Development. [DOI:10.5194/gmd-13-3863-2020](https://doi.org/10.5194/gmd-13-3863-2020)
 - new class: DIVIDEobj [Paper 1 DOI: 10.5194/esurf-8-245-2020](https://doi.org/10.5194/esurf-8-245-2020)
   [Paper 2 DOI: 10.5194/esurf-8-261-2020](https://doi.org/10.5194/esurf-8-261-2020)
-- new class: PPS [Preprint of manuscript in review DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r) 
-- modification: update to ttscm to include cyclic colormaps; 
+- new class: PPS [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
+- modification: update to ttscm to Scientific Colormaps 7.0
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
+- new function: FLOWobj/plotdbfringe
+- new function: FLOWobj/tfactor
+- new function: private in FLOWobj graydistparallel
+- new function: GRIDobj/diffusion
+- new function: GRIDobj/histogram
+- new function: GRIDobj/rand
+- new function: PPS/extractvaluesaroundpoints
+- new function: STREAMobj/extend2divide
+- new function: STREAMobj/binarize
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
+- new function: STREAMobj/loessksn
 - new function: STREAMobj/STREAMobj2shape
 - new function: STREAMobj/isequal
+- new function: STREAMobj/isempty
 - new function: STREAMobj/STREAMobj2kml
+- new function: STREAMobj/getlocation
+- new function: STREAMobj/fastscape
+- modification: STREAMobj/smooth
+- new function: STREAMobj/mnoptimvar
+- modification: STREAMobj/STREAMobj2cell
+- modification: STREAMobj/netdist and PPS/netdist
+- new function: STREAMobj/istrunk
+- modification: STREAMobj/trunk - added second output argument
+- modification: GRIDobj/demprofile
+- new function: ScaleBar
+- new function: xlinerel and ylinerel 
+- new function: gif by Chad Greene [see here](https://de.mathworks.com/matlabcentral/fileexchange/63239-gif)
 - topoapp was removed from this version 
+- updates to readopentopo
 - updates to utilities: setextent and getextent 
 - new function: padextent
+- new function: ukrainecolor
 
 
 ### 2.3

@@ -39,13 +39,14 @@ function s = rhohat(P,varargin)
 %     'name'         variable name. Default is 'x'.
 %     'indicators'   {true} or false. If true, point indicators will be
 %                    plotted on the x-axis.
+%     'indlocation'  {'bottom'} or 'top'. Indicator position at the bottom
+%                    or at the top. 
 %     'indcolor'     {'b'}. Indicator color.
 %     'FaceColor'    Color of the confidence bounds.
 %     'FaceAlpha'    Transparency of the confidence bounds.
-%     'confpatch'    {true} or false. If true, confidence intervals will be
-%                    plotted as shaded area using the function patch. If
-%                    false, the confidence intervals will be plotted as
-%                    lines with the color indicated by 'FaceColor'.
+%     'scale'        positive scalar. Default is 1. The value is used to
+%                    multiply estimated densities and should only be used
+%                    for plotting purposes.
 %
 % Output arguments
 %
@@ -53,11 +54,25 @@ function s = rhohat(P,varargin)
 %     .rho          estimated intensity
 %     .rhol, rhou   lower and upper bootstrapped confidence intervals
 %                   around estimated intensities
+%     .covariate    covariate values 
 %     .rhopp, .rholpp, .rhoupp 
 %                   estimated intensities and upper and lower bounds at
 %                   points
 %     .bandwidth    bandwidth
 %  
+% Example: Calculate nonparametric dependence of knickpoint locations on
+%          chi
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','c');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S,1);
+%     [~,kp] = knickpointfinder(S,DEM,'tol',30,'split',false);
+%     A = flowacc(FD);
+%     c = chitransform(S,A);
+%     P = PPS(S,'PP',kp.IXgrid,'z',DEM);
+%     r = rhohat(P,'cov',c,'name','\chi');
+%
 % Reference 
 %
 %     Baddeley A, Chang Y-M, Song Y, Turner R. 2012. Nonparametric
@@ -68,14 +83,14 @@ function s = rhohat(P,varargin)
 % See also: PPS 
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. March, 2020
+% Date: 6. May, 2024
 
 % Check input arguments
 p = inputParser;
 p.FunctionName = 'rhohat';
 addRequired(p,'P',@(x) isa(x,'PPS'));
 
-% Standard color
+% Default color
 clr = [0.5059 0.8471 0.8157];
 
 % Add elevation
@@ -88,15 +103,17 @@ addParameter(p,'alpha',0.05);
 addParameter(p,'ksdensity',true);
 addParameter(p,'FaceColor',clr);
 addParameter(p,'FaceAlpha',0.5);
-addParameter(p,'confpatch',true);
 addParameter(p,'Color','k')
 addParameter(p,'LineStyle','-');
 addParameter(p,'LineWidth',1.5);
 addParameter(p,'weights',ones(npoints(P),1),@(x) numel(x) == npoints(P) & all(x > 0));
 addParameter(p,'name','x');
 addParameter(p,'indicators',true);
+addParameter(p,'indlocation','bottom',@(x) ischar(validatestring(x,{'bottom','top'})));
 addParameter(p,'indcolor','b');
+addParameter(p,'indlength',0.03);
 addParameter(p,'bandwidth',[]);
+addParameter(p,'scale',1, @(x) x>0 && isscalar(x))
 
 % Parse
 parse(p,P,varargin{:});
@@ -111,17 +128,22 @@ c = getcovariate(P,p.Results.covariate);
     'weights',p.Results.weights);
 
 in = intensity(P);
-rho  = in*N./Nb;
-if p.Results.confintervals
-rhou = in*Nu./Nb;
-rhol = in*Nl./Nb;
-end
+rho  = in*N./Nb * p.Results.scale;
+rhou = in*Nu./Nb * p.Results.scale;
+rhol = in*Nl./Nb * p.Results.scale;
 
 if p.Results.plot
-    
+
+    % draw rhohat
     ax = gca;
-    hold(ax,'on');
-    box on
+    if ishold(ax)
+        ISHOLD = true;
+    else
+        ISHOLD = false;
+        cla(ax, 'reset')
+        hold(ax,'on')
+        box(ax,'on')
+    end
     
     % plot intensity line with acceptance intervals
     if p.Results.intline
@@ -131,45 +153,47 @@ if p.Results.plot
             'accintervals',true,'plot',false,'ksdensity',p.Results.ksdensity,'function','pdf');
         rhoaccu = in*Nuacc./Nbacc;
         rhoaccl = in*Nlacc./Nbacc;
-        patch([xacc;flipud(xacc)],[rhoaccu;flipud(rhoaccl)],[0.9 0.9 0.9],...
+        patch(ax,[xacc;flipud(xacc)],[rhoaccu;flipud(rhoaccl)],[0.9 0.9 0.9],...
             'EdgeColor','none','FaceAlpha',p.Results.FaceAlpha);
-        plot([min(x),max(x)],[in in],'--k');
+        plot(ax,[min(x),max(x)],[in in],'--k');
     end
     
     % plot confidence intervals
     if p.Results.confintervals
-        if p.Results.confpatch
-        patch([x; flipud(x)],[rhou;flipud(rhol)],p.Results.FaceColor,...
+        patch(ax,[x; flipud(x)],[rhou;flipud(rhol)],p.Results.FaceColor,...
             'EdgeColor','none','FaceAlpha',p.Results.FaceAlpha);
-        else
-            plot([x(:);nan;x(:)],[rhou(:);nan;rhol(:)],'-', ...
-                'Color',p.Results.FaceColor);
-        end
     end
     
     % plot rho line
-    plot(x,rho(:),'LineWidth',p.Results.LineWidth,...
+    plot(ax,x,rho(:),'LineWidth',p.Results.LineWidth,...
                   'LineStyle',p.Results.LineStyle,...
                   'Color',p.Results.Color,...
                   'Marker','none')
     
     % plot indicators
     if p.Results.indicators
-        xlim(ax,[min(x) max(x)])
-        yl = ylim;
-        % plot lines for points
-        yl = yl/50;
-        xl = c(P.PP);
-        plot([xl'; xl'],repmat(yl(:),1,npoints(P)),'-','Color',p.Results.indcolor)
+        indloc = validatestring(p.Results.indlocation,{'bottom','top'});
+        switch indloc
+            case 'bottom'
+                rel = p.Results.indlength;
+            case 'top'
+                rel = [1-p.Results.indlength 1];
+        end
+        xlinerel(c(P.PP),rel,'-','Color',p.Results.indcolor)
+        
     end
-    hold off
+    
+    if ~ISHOLD
+        hold(ax,'off')
+    end
+
     ylabel(['\rho(' p.Results.name ')'])
     xlabel(p.Results.name)
     
 end
 
 if nargout > 0
-    
+    s.covariate = c;
     s.rho  = interp1(x,rho,c);
     s.rhol = interp1(x,rhol,c);
     s.rhou = interp1(x,rhou,c);

@@ -6,7 +6,7 @@ function cmap = ttscm(name,n,percrange)
 %     
 %     cmap = ttscm(name)
 %     cmap = ttscm(name,n)
-%     cmap = ttscm(name,percrange)
+%     cmap = ttscm(name,n,percrange)
 %     ttscm
 %     allowedcmaps = ttscm
 %
@@ -57,10 +57,12 @@ function cmap = ttscm(name,n,percrange)
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     cmaps = ttscm;
+%     tiledlayout('flow','TileSpacing','none');
 %     for r = 1:numel(cmaps); 
-%        subplot(6,4,r); 
+%        nexttile 
 %        imageschs(DEM,[],'colormap', ttscm(cmaps{r}),...
-%                         'colorbar',false,'ticklabels','none');
+%                         'colorbar',false,'ticklabels','none',...
+%                         'useperm',true);
 %        title(cmaps{r});
 %     end
 %
@@ -68,7 +70,7 @@ function cmap = ttscm(name,n,percrange)
 % References: 
 %
 %      Crameri, F., (2018). Scientific colour-maps. Zenodo. 
-%      http://doi.org/10.5281/zenodo.1243862
+%      http://doi.org/10.5281/zenodo.4491293
 %
 %      Crameri, F. (2018), Geodynamic diagnostics, scientific visualisation 
 %      and StagLab 3.0, Geosci. Model Dev., 11, 2541-2562. 
@@ -78,14 +80,15 @@ function cmap = ttscm(name,n,percrange)
 % See also: GRIDobj/IMAGESCHS, ttcmap
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 22. June, 2020
+% Date: 10. June, 2021
 
 allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
                 'buda' ...
                 'devon','davos','oslo','bilbao','lajolla',...
                 'grayC','broc','cork','vik','lisbon','tofino',...
 				'berlin','turku','tokyo','lapaz','roma','oleron', ...
-                'brocO','corkO','vikO'};
+                'brocO','corkO','vikO', 'bam', 'bamO', 'batlowK', 'batlowW',...
+				'bukavu','fes'};
 
 				
 % get location of this function
@@ -99,7 +102,7 @@ if nargin == 0 && nargout == 0
             'InitialMagnification','fit')
 	return
 elseif nargin == 0 && nargout == 1
-    cmap = allowedcmaps;
+    cmap = sort(allowedcmaps);
     return
 end
 

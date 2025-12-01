@@ -33,54 +33,32 @@ function S = removeshortstreams(S,d)
 %     plot(S2)     
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 4. July, 2024
 
 narginchk(2,2)
+mind = sqrt(2*(S.cellsize^2))+S.cellsize*0.1;
+validateattributes(d,{'numeric'},{'scalar','>=',mind},'removeshortstreams','d',2);
 
-validateattributes(d,{'numeric'},{'scalar','>',0},'removeshortstreams','d',2);
+% First, remove some small dangling one-pixel long streams
+Ichan = streampoi(S,'chan','logical');
+Iconf = streampoi(S,'conf','logical');
+
+% Identify those channelheads which are immediately upstream of a
+% confluence
+I = Ichan(S.ix) & Iconf(S.ixc);
+I2 = getnal(S)==0;
+I2(S.ix(I)) = false;
+
+S = subgraph(S,I2);
 
 % calculate streamorder
 s = streamorder(S);
+I = s == 1;
 
-% downstream distance
-dsdistance = zeros(numel(S.x),1);
-for r=1:numel(S.ix);
-    dsdistance(S.ixc(r)) = max(dsdistance(S.ixc(r)),...
-        dsdistance(S.ix(r)) + ...
-        sqrt((S.x(S.ixc(r))-S.x(S.ix(r)))^2 + (S.y(S.ixc(r))-S.y(S.ix(r)))^2));
-end
+S2 = subgraph(S,I);
 
-keepvertices = true(numel(S.x),1);
-keepvertices(dsdistance<=d & s==1) = false;
+c  = aggregate(S2,S2.distance,'method','drainagebasins','aggfun',@max);
 
-for r=numel(S.ix):-1:1;
-    if (s(S.ixc(r)) == 1) && (s(S.ix(r)) == 1);
-        keepvertices(S.ix(r)) = keepvertices(S.ixc(r));
-    end
-end
-
-% adapt new STREAMobj to the reduced network
-L     = keepvertices;
-I     = L(S.ix);
-S.ix  = S.ix(I);
-S.ixc = S.ixc(I);
-
-IX    = cumsum(L);
-S.ix  = IX(S.ix);
-S.ixc = IX(S.ixc);
-
-S.x   = S.x(L);
-S.y   = S.y(L);
-S.IXgrid   = S.IXgrid(L);
-
-S = clean(S);
-
-
-
-
-
-
-
-
-
+I  = nal2nal(S,S2,c>d,true);
+S  = subgraph(S,I);
 

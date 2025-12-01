@@ -172,8 +172,9 @@ addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x) || isnal
 addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
 addParamValue(p,'rmupstreamtoch',[],@(x) isa(x,'STREAMobj'));
+%addParamValue(p,'between',[],@(x) isnumeric(x) && size(x,2) == 2);
 addParamValue(p,'fromch2IX',[]);
-addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'rmnodes',[]);
 addParamValue(p,'clip',[],@(x) (isnumeric(x) && size(x,2)==2 && size(x,1)>2) || isa(x,'GRIDobj'));
 addParamValue(p,'nal',[],@(x) isnal(S,x));
 
@@ -256,8 +257,27 @@ elseif ~isempty(p.Results.upstreamto)
 %     I = false(size(S.x));
     I = II;
     for r = numel(S.ix):-1:1
-        I(S.ix(r)) = II(S.ixc(r)) || I(S.ixc(r));
+        I(S.ix(r)) = II(S.ixc(r)) || I(S.ixc(r))  || I(S.ix(r));
     end
+% elseif ~isempty(p.Results.between)
+%     %% between
+%     M = sparse(S.ix,S.ixc,1,numel(S.x),numel(S.x));
+%     G = graph(M,T);
+%     ix = p.Results.between;
+%     [II,ixs] = ismember(ix,S.IXgrid);
+%     if any(II==0)
+%         error('All cells must be on the network.')
+%     end
+%     % sort indices
+%     [~,temp] = sort(S.distance(ixs),1,'ascend');
+%     ixs = ixs()
+% 
+%     I  = logical(getnal(S));
+%     for r = 1:size(ix,1)
+%         [II,ixs] = ismember(S.IXgrid,ix(r,:));
+%         
+%         I(shortestpath(G,ixs))
+%     end
     
 elseif ~isempty(p.Results.rmupstreamtoch)
     
@@ -294,7 +314,7 @@ elseif ~isempty(p.Results.downstreamto)
 %         end
     end
     
-    I = false(size(S.x));
+    
     I = II;
     for r = 1:numel(S.ix)
         I(S.ixc(r)) = II(S.ix(r)) || I(S.ix(r)) || I(S.ixc(r));
@@ -378,8 +398,13 @@ elseif ~isempty(p.Results.rmconncomps_ch)
     I = ismember(cc,md);
     
 elseif ~isempty(p.Results.rmnodes)
-    I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
-    
+    % check if empty S is supplied
+    if isempty(p.Results.rmnodes.IXgrid)
+        I = getnal(S) == 0;
+    else
+        I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
+    end
+
 elseif ~isempty(p.Results.nal)
     I = p.Results.nal;
 
@@ -397,7 +422,7 @@ elseif ~isempty(p.Results.clip)
 
 elseif ~isempty(p.Results.interactive)
 %% interactive    
-    figure
+%     figure
     plot(S,'k'); axis equal
     ax = gca;
     % expand axes
@@ -410,12 +435,16 @@ elseif ~isempty(p.Results.interactive)
          'rectselect','ellipseselect','outletselect'});
     switch meth
         case 'outletselect'
-            title('map outlet and double-click to finalize')
+            title('map outlet and press key to finalize')
             hold on
             htemp = plot(ax,[],[]);
             hp = impoint('PositionConstraintFcn',@getnearest);
             addNewPositionCallback(hp,@drawbasin);
+            setPosition(hp,getPosition(hp));
+            set(gcf,'WindowKeyPressFcn',@(k,l) uiresume);
             pos = wait(hp);
+%             pos = getPosition(hp);
+%             
             hold off
             delete(hp);
             I = S.x==pos(1) & S.y==pos(2);
@@ -457,14 +486,25 @@ elseif ~isempty(p.Results.interactive)
             switch meth
                 case 'polyselect'
                     title('create a polygon and double-click to finalize')
+                    try
+                    hp = drawpolygon;
+                    pos = hp.Position;
+                    catch
                     hp = impoly;
                     pos = wait(hp);
+                    end
                     pos(end+1,:) = pos(1,:);
                 case 'ellipseselect'
                     title('create a ellipse and double-click to finalize')
+                    try
+                    hp = drawellipse;
+                    pos = hp.Vertices;
+                    catch
                     hp = imellipse;
-                    wait(hp);
+                    pos = wait(hp);
                     pos = getVertices(hp);
+                    end
+                    
                     pos(end+1,:) = pos(1,:);
                 case 'rectselect'
                     title('create a rectangle and double-click to finalize')

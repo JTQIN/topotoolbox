@@ -8,6 +8,7 @@ classdef PPS
 %     P = PPS(S,'PP',xy,...)
 %     P = PPS(S,'PP',MS,...)
 %     P = PPS(S,'PP',nal,...)
+%     P = PPS(S,'PP',geotable,...)
 %     P = PPS(S,'runif',n,...)
 %     P = PPS(S,'rpois',lambda,...)
 %     P = PPS(S,'intersect',PS,...)
@@ -25,7 +26,7 @@ classdef PPS
 %     P = PPS(S,'PP',xy,...) uses the coordinates in the px2 matrix with p
 %     points and x-coordinates in the first column and y-coordinates in the
 %     second column. Coordinates that are not located on the stream network
-%     are snapped using STREAMobj/snap2stream(S,...)
+%     are snapped using STREAMobj/snap2stream(S,...). 
 %
 %     P = PPS(S,'PP',MS,...) takes the mapping structure (as returned by
 %     shaperead). The mapping structure must be a point vector shape with
@@ -64,9 +65,17 @@ classdef PPS
 %             network will be snapped to the stream network (see function
 %             STREAMobj/snap2stream).
 %     nal     logical node-attribute list
-%     n       number of points
+%     n       number of points if binomial point process
 %     lambda  point pattern intensity (i.e., points per m along the
-%             network)
+%             network) if Poisson point process
+%
+%     Parameter name/value pairs
+%
+%     'z'            GRIDobj or node-attribute list of elevations
+%     'alongstream'  only applicable if called together with 'PP',xy. 
+%                    By default, []. If FLOWobj is supplied, then stream 
+%                    snapping moves the points along the flow network (see
+%                    STREAMobj/snap2stream).
 %
 % Output arguments
 %
@@ -97,11 +106,18 @@ classdef PPS
 %     P = PPS(S,'PP',kp.IXgrid,'z',DEM);
 %     plot(P)
 % 
+% Reference: Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A 
+% systematic approach and software for the analysis of point patterns on 
+% river networks. Earth Surface Processes and Landforms, 46 (9), 1847-1862. 
+% [DOI: 10.1002/esp.5127]
+%
+% Also check out the Zenodo repository with examples 10.5281/zenodo.4658411
+%
 % See also: GRIDobj, FLOWobj, STREAMobj, STREAMobj/snap2stream, SWATHobj
 %           DIVIDEobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 22. January, 2020
+% Date: 21. December, 2021
     
 properties
 %S instance of STREAMobj
@@ -174,6 +190,7 @@ methods
         
         % Some additional parameters
         addParameter(p,'warning',true);
+        addParameter(p,'alongflow',[],@(x) isa(x,'FLOWobj'));
 
         % Parse
         parse(p,S,varargin{:});
@@ -186,6 +203,17 @@ methods
             P.z = getnal(S,results.z);
         else
             P.z = results.z;
+        end
+
+        %% Enable reading of geotable
+        if ~verLessThan('map','5.2')
+            if isgeotable(results.PP)
+                points = results.PP.Shape;
+                x = [points.X];
+                y = [points.Y];
+
+                results.PP = [x(:) y(:)];
+            end
         end
         
         %% Read or create points
@@ -217,7 +245,7 @@ methods
                 end
                 
                 % coordinates
-                [~,~,IXgrid] = snap2stream(S,x,y);
+                [~,~,IXgrid] = snap2stream(S,x,y,'alongflow',results.alongflow);
                 [~,P.PP] = ismember(IXgrid,P.S.IXgrid);
             end
             
@@ -300,22 +328,24 @@ methods
         
     end
     
-    function P = subsref(P,S)
-        switch S(1).type
-            case '()'
-                if numel(S.subs) == 1
-                    ix = S.subs{1};
-                    ix = ix(:);
-                    P.PP = P.PP(ix);
-                else
-                    error('Subscript indexing not allowed.')
-                end
-            case '.'
-                P = P.(S.subs);
-            otherwise
-                error('Only linear indexing with () allowed')
-        end
-    end
+%     function P = subsref(P,S)
+%         if numel(S) == 1
+%         switch S(1).type
+%             case '()'
+%                 if numel(S.subs) == 1
+%                     ix = S.subs{1};
+%                     ix = ix(:);
+%                     P.PP = P.PP(ix);
+%                 else
+%                     error('Subscript indexing not allowed.')
+%                 end
+%         end
+%             case '.'
+%                 P = P.(S.subs);
+%             otherwise
+%                 error('Only linear indexing with () allowed')
+%         end
+%     end
     
     %% methods to access and set properties
     function P = set.z(P,DEM)

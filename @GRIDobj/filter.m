@@ -33,8 +33,8 @@ function DEM = filter(DEM,varargin)
 % 
 % See also: CONV2, FILTER2, MEDFILT2, WIENER2
 %
-% Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
-% Date: 15. March, 2009
+% Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 26. August, 2020
 
 
 
@@ -93,11 +93,13 @@ switch method
         padsize = ceil(ws/2);
         dem     = padarray(dem,padsize,'replicate');
         dem     = hypot(conv2(dem,ky,'valid'),conv2(dem,kx,'valid'));
+        dem     = dem(2:end-1,2:end-1);
         
     case 'wiener'
         dem     = wiener2(dem,ws);
     case 'std'
         dem     = stdfilt(dem,true(p.Results.kernel(1),p.Results.kernel(2)));
+
 end
 
 % and set nans at their previous position
